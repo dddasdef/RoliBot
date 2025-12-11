@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roblox Trade UI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" id="trade-container">
+        <div class="middle-section">
+            <button id="submit-trade">Submit</button>
+            <button id="add-slot-btn">+</button>
+        </div>
+
+        <div class="trade-row">
+            <div class="trade-section offer-section">
+                <h2>Offer</h2>
+                <div class="slots" id="offer-slots-container">
+                    <div class="slot" data-slot-type="offer"></div>
+                    <div class="slot" data-slot-type="offer"></div>
+                    <div class="slot" data-slot-type="offer"></div>
+                    <div class="slot" data-slot-type="offer"></div>
+                </div>
+
+                <div class="input-group" style="display: flex; gap: 10px; margin-top: 10px; padding: 0 5px;">
+                    <div style="flex: 1;">
+                        <label style="color: #aaa; font-size: 11px; display: block; margin-bottom: 2px;">Robux Offer</label>
+                        <input type="number" class="robux-offer-input" value="0" min="0" placeholder="0">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="color: #aaa; font-size: 11px; display: block; margin-bottom: 2px;">Amount to send</label>
+                        <input type="number" class="amount-to-send-input" value="100" min="1" placeholder="100" >
+                    </div>
+                </div>
+
+                <div class="total-values" style="margin-top: 10px;">
+                    <div class="value-display">Value: <span class="offer-value-total">0</span></div>
+                    <div class="rap-display">RAP: <span class="offer-rap-total">0</span></div>
+                </div>
+            </div>
+
+            <div class="trade-section request-section">
+                <h2>Request</h2>
+                <div class="slots" id="request-slots-container">
+                    <div class="slot" data-slot-type="request"></div>
+                    <div class="slot" data-slot-type="request"></div>
+                    <div class="slot" data-slot-type="request"></div>
+                    <div class="slot" data-slot-type="request"></div>
+                </div>
+
+                <div class="input-group" style="margin-top: 10px; padding: 0 5px;">
+                    <label style="color: #aaa; font-size: 11px; display: block; margin-bottom: 2px;">Robux Request</label>
+                    <input type="number" class="robux-request-input" value="0" min="0" placeholder="0">
+                </div>
+
+                <div class="total-values" style="margin-top: 10px;">
+                    <div class="value-display">Value: <span class="request-value-total">0</span></div>
+                    <div class="rap-display">RAP: <span class="request-rap-total">0</span></div>
+                </div>
+            </div>
+
+            <div class="trade-row-footer">
+                <div class="profit-display">
+                    Profit: <span class="profit-value">0</span>
+                </div>
+                <div class="profit-percent-display">
+                    Profit %: <span class="profit-percent-value">0%</span>
+                </div>
+                <div class="trade-warning" style="display: none;">
+                    ⚠️ Warning: You are requesting 3 or more limiteds, which may make it harder to find a matching owner.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="inventory-section">
+        <div class="search-bar">
+            <div class="inventory-toggle">
+                <button id="show-my-inventory-btn" class="active">My Inventory</button>
+                <button id="show-all-items-btn">Requestable Items</button>
+            </div>
+            <input type="text" id="search-input" placeholder="Search for items">
+        </div>
+        
+        <div class="item-filters" id="request-filters" style="display: none;">
+            <label>
+                <input type="checkbox" id="filter-premium-copies">
+                Hide &lt;350 Premium Copies
+            </label>
+            <label>
+                <strong>Min Demand:</strong>
+                <select id="filter-demand">
+                    <option value="0">Unassigned (0+)</option>
+                    <option value="1">Terrible (1+)</option>
+                    <option value="2">Low (2+)</option>
+                    <option value="3">Normal (3+)</option>
+                    <option value="4">High (4+)</option>
+                    <option value="5">Amazing(5)</option>
+                </select>
+            </label>
+            
+            <label>
+                Min Value:
+                <input type="number" id="filter-min-value" placeholder="e.g., 500" min="0">
+            </label>
+            <label>
+                Max Value:
+                <input type="number" id="filter-max-value" placeholder="e.g., 10000" min="0">
+            </label>
+        </div>
+
+        <div class="inventory-grid active-grid" id="my-inventory-grid"></div>
+        <div class="inventory-grid" id="all-items-grid" style="display: none;"></div>
+
+        <div class="pagination-controls">
+            <button id="prev-page-btn">Previous</button>
+            <span id="page-info">Page 1 of 1</span>
+            <button id="next-page-btn">Next</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

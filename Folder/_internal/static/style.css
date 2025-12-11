@@ -1,0 +1,355 @@
+/* static/style.css */
+body {
+    background-color: #2c2f33;
+    color: #f6f6f6;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+/* === Basic Colors & Variables === */
+:root {
+    --bg-tertiary: #313338;
+    --interactive-normal: #4e5058;
+    --interactive-hover: #585b66;
+    --interactive-active: #5865F2; /* Accent color for the active button */
+    --text-normal: #dbdee1;
+    --text-muted: #949ba4;
+    --warning-bg: #f8d7da;
+    --warning-text: #721c24;
+    --warning-border: #f5c6cb;
+    --border-radius-sm: 5px;
+    --border-radius-md: 8px;
+}
+
+/* === General Styling for All Buttons === */
+/* This targets the inventory, pagination, and submit buttons */
+button {
+    background-color: var(--interactive-normal);
+    color: var(--text-normal);
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: var(--interactive-hover);
+}
+
+button:active {
+    transform: translateY(1px); /* Adds a subtle press effect */
+}
+
+button:disabled {
+    background-color: var(--bg-tertiary);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* === Specific Button Styles === */
+/* Style for the active inventory button (My Inventory / Requestable Items) */
+.inventory-toggle .active {
+    background-color: var(--interactive-active);
+    color: white;
+    font-weight: bold;
+}
+
+/* Style for the '+' add button */
+#add-slot-btn {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 5px 20px;
+}
+
+/* === Profit & Warning Displays === */
+.profit-display, .profit-percent-display {
+    background-color: var(--bg-tertiary);
+    padding: 8px 15px;
+    border-radius: var(--border-radius-md);
+    font-size: 16px;
+    text-align: center;
+}
+
+.profit-value, .profit-percent-value {
+    font-weight: 700; /* Bolder font for the value/percentage */
+}
+
+.trade-warning {
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+    border: 1px solid var(--warning-border);
+    border-radius: var(--border-radius-sm);
+    padding: 12px;
+    text-align: center;
+    font-weight: 500;
+    margin-top: 10px;
+    width: 100%;
+}
+.container {
+    display: flex;
+    flex-direction: column; /* <-- ADD THIS LINE to stack rows vertically */
+    justify-content: center;
+    align-items: center; /* Optional: ensures rows center themselves if width varies */
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 20px;
+}
+
+.trade-row {
+    display: flex;
+    justify-content: center; /* Aligns offer/middle/request sections horizontally */
+    gap: 20px;             /* Spacing between offer/middle/request sections */
+    width: 100%;           /* Ensure the row takes up available space */
+}
+.trade-section {
+    background-color: #36393f;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+.trade-section h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.slots {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.slot {
+    width: 120px;
+    height: 120px;
+    background-color: #23272a;
+    border: 2px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.slot.selected-item {
+    border-color: #4a90e2; /* Highlight selected slot */
+}
+
+.slot img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.item-info {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px;
+    box-sizing: border-box;
+    display: none;
+    flex-direction: column;
+}
+
+.slot.filled .item-info {
+    display: flex;
+}
+
+.total-values {
+    text-align: center;
+    display: flex;
+    justify-content: space-around;
+}
+
+.middle-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#submit-trade {
+    background-color: #7289da;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#submit-trade:hover {
+    background-color: #677bc4;
+}
+
+.inventory-section {
+    background-color: #36393f;
+    border-radius: 8px;
+    padding: 20px;
+    width: 100%;
+    max-width: 1200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-bar {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#search-input {
+    width: 80%;
+    padding: 10px;
+    border: 1px solid #555;
+    background-color: #23272a;
+    color: white;
+    border-radius: 4px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.item-card {
+    background-color: #2c2f33;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: 2px solid transparent;
+}
+
+.item-card:hover {
+    border-color: #7289da;
+}
+
+.item-card img {
+    max-width: 100%;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.item-card .name {
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-card .rap, .item-card .value {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.profit-display, .profit-percent-display {
+    background-color: var(--bg-tertiary);
+    padding: 8px 15px;
+    border-radius: var(--border-radius-md);
+    font-size: 16px;
+    flex-grow: 1; /* Allow them to grow and fill space */
+    text-align: center;
+}
+
+.profit-value, .profit-percent-value {
+    font-weight: 700; /* Bold */
+}
+
+.trade-warning {
+    width: 100%; /* Take full width for prominence */
+    background-color: var(--warning-bg);
+    color: var(--warning-text);
+    border: 1px solid var(--warning-border);
+    border-radius: var(--border-radius-sm);
+    padding: 12px;
+    text-align: center;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+/* === Control Bar Styling === */
+.middle-section, .pagination-controls, .inventory-toggle, .item-filters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.item-filters input[type="number"] {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--interactive-normal);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-normal);
+    padding: 8px;
+    width: 100px;
+    font-size: 14px;
+}
+.input-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 0 10px;
+}
+
+/* Input Label Styling */
+.trade-section label {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.robux-offer-input, 
+.robux-request-input, 
+.amount-to-send-input {
+    width: 90px;  /* <--- CHANGED: Fixed, smaller width */
+    background-color: var(--input-bg);
+    color: var(--text-normal);
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px 5px;
+    font-size: 14px;
+    text-align: center; /* Centers the number inside the box */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Focus State for Inputs */
+.robux-offer-input:focus, 
+.robux-request-input:focus, 
+.amount-to-send-input:focus {
+    outline: none;
+    border-color: var(--brand-color);
+    box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.2);
+}
+
+/* Remove default spinner arrows for number inputs (Chrome, Safari, Edge) */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+/* Remove default spinner arrows for number inputs (Firefox) */
+input[type=number] {
+    -moz-appearance: textfield;
+}

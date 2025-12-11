@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .trade-img {
+        width: 70px;
+        height: 70px;
+        margin: 6px;
+        border-radius: 4px;
+        object-fit: cover; /* optional to keep the image cropped nicely */
+        }
+        /* Set the overall background color and text color */
+        body {
+            background-color: #0D0D0D;
+            color: #FFFEFE; /* Updated main text color */
+        }
+
+        /* Style the container with a slightly lighter background for readability */
+        .container {
+            background-color: #1A1A1A; /* Dark gray */
+            padding: 2rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Style form labels */
+        label {
+            color: #CCCCCC; /* Light gray for form labels */
+        }
+
+        /* Style helper texts (tooltip descriptions) */
+        .form-text {
+            color: #FFFEFE; /* Updated helper text color */
+        }
+
+        /* Style input fields */
+        .form-control {
+            background-color: #333333; /* Darker input fields */
+            color: #FFFEFE; /* Updated input text color */
+            border: 1px solid #555555; /* Slightly lighter border */
+            
+        }
+
+        .form-control:focus {
+            background-color: #444444;
+            color: #FFFEFE;
+            border-color: #66AFE9; /* Bootstrap primary focus color */
+            box-shadow: none; /* Remove default Bootstrap focus shadow */
+        }
+
+        /* Placeholder text */
+        .form-control::placeholder {
+            color: #AAAAAA; /* Placeholder text */
+        }
+
+        /* Style checkboxes */
+        .form-check-input {
+            background-color: #333333;
+            border-color: #555555;
+        }
+
+        /* Style buttons */
+        .btn-primary {
+            background-color: #1E90FF;
+            border-color: #1C86EE;
+            color: #FFFFFF; /* Keep button text white for contrast */
+        }
+
+        .btn-primary:hover {
+            background-color: #1C86EE;
+            border-color: #1874CD;
+            color: #FFFFFF;
+        }
+
+        .btn-primary:active {
+            background-color: #1874CD;
+            border-color: #165A93;
+            color: #FFFFFF;
+        }
+
+        /* Style alerts */
+        .alert {
+            background-color: #2D2D2D;
+            color: #FFFEFE; /* Updated alert text color */
+            border: 1px solid #555555;
+        }
+
+        .alert-success {
+            background-color: #28a745;
+            border-color: #218838;
+            color: #FFFFFF; /* Keep success alert text white */
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+            border-color: #c82333;
+            color: #FFFFFF; /* Keep danger alert text white */
+        }
+
+        /* Links */
+        a {
+            color: #1E90FF;
+        }
+
+        a:hover {
+            color: #63B8FF;
+        }
+
+        /* Smooth transitions for interactive elements */
+        .btn, .form-control, .alert {
+            transition: all 0.3s ease;
+        }
+
+        /* Hover effects for form inputs */
+        .form-control:hover {
+            background-color: #3A3A3A;
+        }
+
+        /* Form sections styling */
+        .form-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            background-color: #2A2A2A; /* Slightly lighter dark gray */
+        }
+
+        .form-section h3 {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+<div class="d-flex align-items-center mb-4 p-3 rounded" style="background-color: #2A2A2A;">
+    <img 
+        src="{{ pfp_url or 'https://via.placeholder.com/80?text=No+PFP' }}" 
+        alt="Profile Picture" 
+        class="me-3" 
+        style="width: 80px; height: 80px; border-radius: 50%;">
+    
+    <div>
+        <h1 class="mb-0">{{ username or 'Unknown User' }}</h1>
+        <h4 class="text-white-50">Settings (ID: {{ user_id }})</h4>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Buttons row -->
+    <div class="mb-4 d-flex">
+        <button class="btn btn-secondary me-2" type="button" onclick="toggleAutoCounter()">
+            Toggle Trade Settings
+            </button>
+        <button class="btn btn-secondary me-2" type="button" onclick="toggleAutoCounter()">
+            Toggle Auto Counter Settings
+            </button>
+            
+        <!-- Toggle Multi Account Settings -->
+        <button class="btn btn-secondary" type="button" onclick="toggleMultiAccount()">
+        Toggle Multi Account Settings
+        </button>
+        <!-- New Toggle for Trade Ads -->
+        <button class="btn btn-secondary" type="button" onclick="toggleTradeAds()">
+            Toggle Trade Ad Settings
+            </button>       
+    </div>
+
+
+
+
+    <small class="form-text">
+        Use these buttons to switch between Normal, Auto Counter, and Multi Account settings.
+    </small>
+    <!-- =============== NORMAL SETTINGS FORM =============== -->
+    <form method="POST" id="normalSettingsForm" style="display: block;">
+        <!-- 
+           Keep all your existing normal settings sections:
+           1) Trade Settings
+           2) Demand and RAP Filters
+           3) Auto Accept Settings
+           4) Misc. Settings
+        -->
+        <div class="form-section">
+            <h3>Trade Settings</h3>
+            <div class="row">
+                <!-- MaxGainToAutoCounter (float, -100 to 100) -->
+                <div class="col-md-6 mb-3">
+                    <label for="MaxGainToAutoCounter" class="form-label">Max Gain To Auto Counter (%)</label>
+                    <input
+                        type="number"
+                        id="MaxGainToAutoCounter"
+                        name="MaxGainToAutoCounter"
+                        value="{{ config.MaxGainToAutoCounter }}"
+                        min="-100"
+                        max="100"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        If the % Gain from a trade is less than the set value, the bot will auto counter it.
+                        Keep at 100 to counter all trades
+                    </small>
+                </div>
+                
+                <!-- Cancel_Outbound_at (int, -1000000 to 1000000) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Cancel_Outbound_at" class="form-label">Cancel Outbound At</label>
+                    <input
+                        type="number"
+                        id="Cancel_Outbound_at"
+                        name="Cancel_Outbound_at"
+                        value="{{ config.Cancel_Outbound_at }}"
+                        min="-1000000"
+                        max="1000000"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Value outbounds will be canceled if they change by >= the set value.
+                    </small>
+                </div>
+                
+                <!-- Max_User_Rap (int, 0 to 50000000) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Max_User_Rap" class="form-label">Max User RAP</label>
+                    <input
+                        type="number"
+                        id="Max_User_Rap"
+                        name="Max_User_Rap"
+                        value="{{ config.Max_User_Rap }}"
+                        min="0"
+                        max="50000000"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Filters the owners to only send to users with &lt; RAP than the set value.
+                    </small>
+                </div>
+                
+                <!-- Max_Trade_Ads (int, -1 to 1000000) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Max_Trade_Ads" class="form-label">Max Trade Ads</label>
+                    <input
+                        type="number"
+                        id="Max_Trade_Ads"
+                        name="Max_Trade_Ads"
+                        value="{{ config.Max_Trade_Ads }}"
+                        min="-1"
+                        max="3000000"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Filters users by the max amount of trade ads posted. Keep at -1 to disable.
+                    </small>
+                </div>
+                
+        <!-- Auto_Mode_Switching_Trade (int, 5 to 100) -->
+        <div class="col-md-6 mb-3">
+            <label for="Auto_Mode_Switching_Trade" class="form-label">
+            Auto Mode Switching Trade
+            <!-- Hover “?” badge -->
+            <span 
+                class="badge rounded-pill bg-secondary ms-2" 
+                style="cursor: help;"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top"
+                title="Automatically sends a set number of trades per combination. For example, if set to 35, it will execute 35 trades for the first combination, then move on to the next trade combination and so on."
+            >
+                ?
+            </span>
+            </label>
+        
+            <input
+            type="number"
+            id="Auto_Mode_Switching_Trade"
+            name="Auto_Mode_Switching_Trade"
+            value="{{ config.Auto_Mode_Switching_Trade }}"
+            min="5"
+            max="100"
+            step="1"
+            class="form-control"
+            required
+            >
+            <small class="form-text">
+            5 to 100 | Automatically sends a fixed number of trades per combination.
+            </small>
+        </div>
+
+
+
+
+                <div class="col-md-6 mb-3">
+            <label for="AmountToSend" class="form-label">
+                Total Amount of trades to send
+                <span 
+                    class="badge rounded-pill bg-secondary ms-2" 
+                    style="cursor: help;"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top"
+                    title="Specifies the number of trades to send (1-100)."
+                >
+                    ?
+                </span>
+            </label>
+            <input
+                type="number"
+                id="AmountToSend"
+                name="AmountToSend"
+                value="{{ config.AmountToSend }}"
+                min="1"
+                max="100"
+                step="1"
+                class="form-control"
+                required
+            >
+            <small class="form-text">
+                1 to 100 | The amount of trades to send.
+            </small>
+        </div>
+                
+                <!-- MaxValueDifference (int, 1 to 30) -->
+                <div class="col-md-6 mb-3">
+                    <label for="MaxValueDifference" class="form-label">Max Value Difference (%)</label>
+                                <!-- Hover “?” badge -->
+                    <span 
+                    class="badge rounded-pill bg-secondary ms-2" 
+                    style="cursor: help;"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top"
+                    title="For Example: if MaxValueDifference = 10 and you have a 20k item to downgrade, the other limited must be at least 2k to be included (2/20k=10%). 
+                    This prevents trades where you add a super small item, like 20k + 200, which fails the difference check."
+                    >
+                        ?
+                    </span>
+                    </label>
+                    <input
+                        type="number"
+                        id="MaxValueDifference"
+                        name="MaxValueDifference"
+                        value="{{ config.MaxValueDifference }}"
+                        min="1"
+                        max="30"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        1 to 30 | Max Value difference each item can have.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demand and RAP Filters -->
+        <div class="form-section">
+            <h3>Demand and RAP Filters</h3>
+            <div class="row">
+                <!-- Min_Demand_Filter (int, 0 to 5) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Min_Demand_Filter" class="form-label">
+                        Min Demand Filter
+                        <span
+                          class="badge rounded-pill bg-secondary ms-2"
+                          style="cursor: help;"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          title="Items have a demand rating 0–5 (Unassigned, Terrible, Low, Normal, High, Amazing). 
+                    Items to send trades on requires a demand more than or equal to the set Demand Filter  "
+                        >
+                          ?
+                        </span>
+                      </label>
+                      <input
+                        type="number"
+                        id="Min_Demand_Filter"
+                        name="Min_Demand_Filter"
+                        value="{{ config.Min_Demand_Filter }}"
+                        min="0"
+                        max="5"
+                        step="1"
+                        class="form-control"
+                        required
+                      >
+                      <small class="form-text">
+                        0 to 5 | Min Demand items you request need to be included.
+                      </small>
+                    </div>
+                    
+                
+                <!-- MinRapValueRatio (float, -95 to 95) -->
+                <div class="col-md-6 mb-3">
+                    <label for="MinRapValueRatio" class="form-label">Min RAP Value Ratio</label>
+                    <span
+                    class="badge rounded-pill bg-secondary ms-2"
+                    style="cursor: help;"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Filters items based on their RAP/Value ratio minus 1. 
+                    If this ratio is less than the set value, the item is excluded.
+                    
+                    This is to protect against sending trades where where the RAP is significantly less than its Value which means it would be more likely to fall in Value."
+                  >
+                    ?
+                  </span>
+                </label>
+                <input
+                        type="number"
+                        id="MinRapValueRatio"
+                        name="MinRapValueRatio"
+                        value="{{ config.MinRapValueRatio }}"
+                        min="-95"
+                        max="95"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        -95 to 95 | Filters items you will request by min (RAP/Value)-1 ratio. Set to -100 to disable.
+                    </small>
+                </div>
+                
+       
+  
+                
+                <!-- Max_Trades_To_Fetch (int, 30000 to 1000000) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Max_Trades_To_Fetch" class="form-label">Max Trades To Fetch</label>
+                    <input
+                        type="number"
+                        id="Max_Trades_To_Fetch"
+                        name="Max_Trades_To_Fetch"
+                        value="{{ config.Max_Trades_To_Fetch }}"
+                        min="2000"
+                        max="5000000"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Sets the max amount of trade combinations that will be generated.
+                    </small>
+                </div>
+
+                <!-- Demand_Gain_Filter (float, -5 to 5) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Demand_Gain_Filter" class="form-label">
+                        Demand Gain Filter
+                        <span
+                          class="badge rounded-pill bg-secondary ms-2"
+                          style="cursor: help;"
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          title="Removes trade combos that have less demand gain than the set value. 
+                    For example, if your item’s demand is 5 and you request an item with demand 1, you get a gain of (1-5)=-4.
+                    Usually leaving this at -5 is fine."
+                        >
+                          ?
+                        </span>
+                      </label>
+                      <input
+                        type="number"
+                        id="Demand_Gain_Filter"
+                        name="Demand_Gain_Filter"
+                        value="{{ config.Demand_Gain_Filter }}"
+                        min="-5"
+                        max="5"
+                        step="any"
+                        class="form-control"
+                        required
+                      >
+                      <small class="form-text">
+                        -5 to 5 | Removes trade combos resulting in less demand gain than set value.
+                      </small>
+                </div>
+                
+                <!-- CopiesFilter (int, 200 to 100000) -->
+                <div class="col-md-6 mb-3">
+                    <label for="CopiesFilter" class="form-label">Copies Filter</label>
+                    <input
+                        type="number"
+                        id="CopiesFilter"
+                        name="CopiesFilter"
+                        value="{{ config.CopiesFilter }}"
+                        min="40"
+                        max="100000"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Minimum amount of available copies a limited needs to have to be included.
+                    </small>
+                </div>
+            </div>
+        </div>
+    <!-- Auto Accept Settings -->
+    <div class="form-section">
+        <h3>Auto Accept Settings</h3>
+        <div class="form-check mb-3">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                id="AutoAcceptEnabled"
+                name="AutoAcceptEnabled"
+                {% if config.AutoAcceptEnabled %}checked{% endif %}
+            >
+            <label class="form-check-label" for="AutoAcceptEnabled">
+                Enable Auto Accept
+            </label>
+        </div>
+        <div class="row">
+            <!-- Lowest Demand To Accept (moved here) -->
+            <div class="col-md-6 mb-3">
+                <label for="Lowest_Demand_To_Accept" class="form-label">
+                    Lowest Demand To Accept
+                    <span
+                    class="badge rounded-pill bg-secondary ms-2"
+                    style="cursor: help;"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="For a trade to be auto-accepted, the lowest demand item in that trade must be >= this value."
+                    >
+                    ?
+                    </span>
+                </label>
+                <input
+                    type="number"
+                    id="Lowest_Demand_To_Accept"
+                    name="Lowest_Demand_To_Accept"
+                    value="{{ config.Lowest_Demand_To_Accept }}"
+                    min="-5"
+                    max="5"
+                    step="1"
+                    class="form-control"
+                    required
+                >
+                <small class="form-text">
+                    0 to 5 | Lowest Demand a trade item can have to be accepted.
+                </small>
+            </div>
+
+            <!-- Auto Accept Min RAP Value Ratio (%) (moved here) -->
+            <!-- Auto Accept Min RAP Value Ratio (%) (moved here) -->
+            <div class="col-md-6 mb-3">
+                <label for="Auto_AcceptMinRap_ValueRatio" class="form-label">
+                Auto Accept Min RAP Value Ratio (%)
+                <span class="badge rounded-pill bg-secondary ms-2" style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="This feature helps protect against requesting items with a significant difference between their RAP and actual value. Items whose RAP is substantially lower than their value are more likely to decrease in value in the near future.">?</span>
+                </label>
+                <input
+                    type="number"
+                    id="Auto_AcceptMinRap_ValueRatio"
+                    name="Auto_AcceptMinRap_ValueRatio"
+                    value="{{ config.Auto_AcceptMinRap_ValueRatio }}"
+                    min="-100"
+                    max="100"
+                    step="any"
+                    class="form-control"
+                    required
+                >
+                <small class="form-text">
+                    Minimum (RAP/Value)-1 % an inbound item can have to be accepted.
+                </small>
+            </div>
+
+
+            <!-- Min Demand Gain To Auto Accept (moved here) -->
+            <div class="col-md-6 mb-3">
+                <label for="Min_Demand_Gain_To_Auto_Accept" class="form-label">Min Demand Gain To Auto Accept</label>
+                <input
+                    type="number"
+                    id="Min_Demand_Gain_To_Auto_Accept"
+                    name="Min_Demand_Gain_To_Auto_Accept"
+                    value="{{ config.Min_Demand_Gain_To_Auto_Accept }}"
+                    min="-5"
+                    max="5"
+                    step="any"
+                    class="form-control"
+                    required
+                >
+                <small class="form-text">
+                    -5 to 5 | Auto accept trades based on demand gain.
+                </small>
+            </div>
+
+            <!-- MinGainToAccept_Trade_Upgrades (existing) -->
+            <div class="col-md-6 mb-3">
+                <label for="MinGainToAccept_Trade_Upgrades" class="form-label">
+                    Min Gain To Accept Trade Upgrades (%)
+                </label>
+                <input
+                    type="number"
+                    id="MinGainToAccept_Trade_Upgrades"
+                    name="MinGainToAccept_Trade_Upgrades"
+                    value="{{ config.MinGainToAccept_Trade_Upgrades }}"
+                    min="-100"
+                    max="1000"
+                    step="any"
+                    class="form-control"
+                    required
+                >
+                <small class="form-text">
+                    Minimum % gain on an upgrade trade required to auto accept. Set to 1000 to disable.
+                </small>
+            </div>
+            
+            <!-- MinGainToAccept_Trade_Downgrades (existing) -->
+            <div class="col-md-6 mb-3">
+                <label for="MinGainToAccept_Trade_Downgrades" class="form-label">
+                    Min Gain To Accept Trade Downgrades (%)
+                </label>
+                <input
+                    type="number"
+                    id="MinGainToAccept_Trade_Downgrades"
+                    name="MinGainToAccept_Trade_Downgrades"
+                    value="{{ config.MinGainToAccept_Trade_Downgrades }}"
+                    min="-100"
+                    max="1000"
+                    step="any"
+                    class="form-control"
+                    required
+                >
+                <small class="form-text">
+                    Minimum % gain for downgrade trades required to auto accept. Set to 1000 to disable.
+                </small>
+            </div>
+
+            <!-- Auto_Accept_Gain_Regardless_Of_Filters (existing) -->
+            <div class="col-md-6 mb-3">
+                <label for="Auto_Accept_Gain_Regardless_Of_Filters" class="form-label">
+                    Auto Accept Gain Regardless Of Filters (%)
+                    <span
+                    class="badge rounded-pill bg-secondary ms-2"
+                    style="cursor: help;"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="If a trade’s overall PNL %% >= this value, accept automatically—ignoring other filters (except projected items)."
+                    >
+                    ?
+                    </span>
+                </label>
+                <input
+                    type="number"
+                    id="Auto_Accept_Gain_Regardless_Of_Filters"
+                    name="Auto_Accept_Gain_Regardless_Of_Filters"
+                    value="{{ config.Auto_Accept_Gain_Regardless_Of_Filters }}"
+                    min="5"
+                    max="100"
+                    step="any"
+                    class="form-control"
+                    required
+                >
+                <small class="form-text">
+                    % gain that will be accepted regardless of other filters.
+                </small>
+            </div>
+        </div>
+    </div>
+
+        
+        <!-- Miscellaneous Settings -->
+        <div class="form-section">
+            <h3>Miscellaneous Settings</h3>
+            <div class="row">
+                <!-- ExcludeVerified_RolimonUsers -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="ExcludeVerified_RolimonUsers"
+                            name="ExcludeVerified_RolimonUsers"
+                            {% if config.ExcludeVerified_RolimonUsers %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="ExcludeVerified_RolimonUsers">
+                            Exclude Verified Rolimon Users
+                        </label>
+                        <small class="form-text">
+                            Only sends to unverified Rolimon accounts when enabled.
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Include_Rap_Items -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="Include_Rap_Items"
+                            name="Include_Rap_Items"
+                            {% if config.Include_Rap_Items %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="Include_Rap_Items">
+                            Include RAP Items
+                        </label>
+                        <small class="form-text">
+                            Excludes requesting on items without assigned Value.
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- StartAutoTrading_If_Tradelock -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="StartAutoTrading_If_Tradelock"
+                            name="StartAutoTrading_If_Tradelock"
+                            {% if config.StartAutoTrading_If_Tradelock %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="StartAutoTrading_If_Tradelock">
+                            Start Auto Trading If Trade Lock
+                        </label>
+                        <small class="form-text">
+                            If enabled, automode will restart once trade lock is off.
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Use_Custom_Limiteds_Mode -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="Use_Custom_Limiteds_Mode"
+                            name="Use_Custom_Limiteds_Mode"
+                            {% if config.Use_Custom_Limiteds_Mode %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="Use_Custom_Limiteds_Mode">
+                            Use Custom Limiteds Mode
+                        </label>
+                        <small class="form-text">
+                            Enable to make RoliBot Only Trade with the spesificed limiteds (In your inventory).
+                        </small>
+                    </div>
+                </div>
+                <!-- New Max CPU Setting -->
+                <div class="col-md-6 mb-3">
+                    <label for="MaxCPU" class="form-label">Max CPU % to use when generating trades</label>
+                    <input
+                        type="number"
+                        id="MaxCPU"
+                        name="MaxCPU"
+                        value="{{ config.MaxCPU }}"
+                        min="10"
+                        max="100"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        The maximum percentage of CPU usage allowed for generating trades.
+                    </small>
+            </div>
+                    <div class="col-md-6 mb-3">
+                    <label for="RequestRapDiscount" class="form-label">% Discount when requesting RAP items</label>
+                    <input
+                        type="number"
+                        id="RequestRapDiscount"
+                        name="RequestRapDiscount"
+                        value="{{ config.RequestRapDiscount }}"
+                        max="0"
+                        min="-100"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        % Discount when requesting RAP items. Must be less than or equal to 0.
+                    </small>
+                </div>
+          
+                <div class="col-md-6 mb-3">
+                    <label for="RAPDiscount" class="form-label">
+                        % discount on your RAP items.
+                        <span
+                        class="badge rounded-pill bg-secondary ms-2"
+                        style="cursor: help;"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="With this parameter you can set the base value of *your* RAP items to a lower value"
+                        >
+                        ?
+                        </span>
+                    </label>
+                    <input
+                        type="number"
+                        id="RAPDiscount"
+                        name="RAPDiscount"
+                        value="{{ config.RAPDiscount }}"
+                        min="-30"
+                        max="100"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                      
+                    </small>
+                </div>
+    
+                <!-- Custom_Lims (list) -->
+                <!-- Custom_Lims (list) -->
+                <div class="col-12 mb-3" id="Custom_Lims_Field">
+                    <label for="Custom_Lims" class="form-label">
+                    Custom Limiteds (Comma Separated)
+                    <span class="badge rounded-pill bg-secondary ms-2" style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="List the names of specific limiteds to be included when `Use_Custom_Limiteds_Mode` is enabled. Example: `Undead Prince Robot, Shaggy`. When Use_Custom_Limiteds_Mode is enabled the trade table will only generate trades using limiteds from your inventory listed in `Custom_Lims`. Useful for targeting specific limiteds.">?</span>
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="Custom_Lims"
+                        name="Custom_Lims"
+                        value="{{ config.Custom_Lims | join(', ') }}"
+                    >
+                    <small class="form-text">
+                        Add limited names separated by commas.
+                    </small>
+                </div>
+
+                                <!-- Custom_Lims (list) -->
+                <div class="col-12 mb-3" id="Limiteds to Exclude Offering">
+                    <label for="Lims_To_Exclude_Offering" class="form-label">Limiteds to Exclude Offering</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="Lims_To_Exclude_Offering"
+                        name="Lims_To_Exclude_Offering"
+                        value="{{ config.Lims_To_Exclude_Offering | join(', ') }}"
+                    >
+                    <small class="form-text">
+                        Add AssetID's separated by commas for items you dont want to offer in trades.
+                    </small>
+                </div>
+                                <!-- Custom_Lims (list) -->
+                <div class="col-12 mb-3" id="Lims_To_Exclude_Requesting">
+                    <label for="Lims_To_Exclude_Requesting" class="form-label">Limiteds to Exclude Requesting</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="Lims_To_Exclude_Requesting"
+                        name="Lims_To_Exclude_Requesting"
+                        value="{{ config.Lims_To_Exclude_Requesting | join(', ') }}"
+                    >
+                    <small class="form-text">
+                        Add AssetID's separated by commas for items you dont want to request in trades.
+                    </small>
+                </div>
+
+
+                  <!-- NEW CHECKBOX: HoldIfRaising -->
+
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="HoldIfRaising"
+                            name="HoldIfRaising"
+                            {% if config.HoldIfRaising %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="HoldIfRaising">
+                            Dont Offer Items with a RAP higher than its Value
+                            <span class="badge rounded-pill bg-secondary ms-2" style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="This feature helps ensure you won't send trades involving items that are likely to increase in value in the near future.">?</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-check mt-4">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="ExcludeFallingLimiteds"
+                            name="ExcludeFallingLimiteds"
+                            {% if config.ExcludeFallingLimiteds %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="ExcludeFallingLimiteds">
+                            Excludes limiteds that are likely to keep falling in value
+                            <span class="badge rounded-pill bg-secondary ms-2" style="cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" title="Any valued limited that has declined with 20% value will be exlcuded when requesting items">?</span>
+                        </label>
+                    </div>
+                </div>
+
+
+
+
+                <div class="col-md-6 mb-3">
+                <div class="form-check mt-4">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="AutoDeleteLog"
+                        name="AutoDeleteLog"
+                        {% if config.AutoDeleteLog %}checked{% endif %}
+                    >
+                    <label class="form-check-label" for="AutoDeleteLog">
+                        Auto delete log?
+                        <span 
+                            class="badge rounded-pill bg-secondary ms-2" 
+                            style="cursor: help;" 
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            title="Auto deletes the logged trades file once it logs more than 1500 trades
+                            Deleting trade file is needed once it becoems to large, ie if you generate alot of trade combinations but find no viable owners"
+                        >
+                            ?
+                        </span>
+                    </label>
+                </div>
+            </div>
+                <!-- NEW NUMBER INPUT: MinUpgradeItemRequirement -->
+                <div class="col-md-6 mb-3">
+                    <label for="MinUpgradeItemRequirement" class="form-label">
+                        Only Send upgrades if holding more limiteds than set value
+                        <span
+                            class="badge rounded-pill bg-secondary ms-2"
+                            style="cursor: help;"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="This will make it so upgrades are only sent when using the 'Both' mode if your collectible count is >= the set value. 
+Useful to prevent upgrading too much resulting in a low collectible count, which makes it a lot harder to find viable trade combinations."
+                        >
+                            ?
+                        </span>
+                    </label>
+                    <input
+                        type="number"
+                        id="MinUpgradeItemRequirement"
+                        name="MinUpgradeItemRequirement"
+                        value="{{ config.MinUpgradeItemRequirement }}"
+                        min="0"
+                        max="30"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Set to 0 to disable.</small>
+                </div>
+
+            </div>
+        </div>
+        
+                
+        
+        <button type="submit" class="btn btn-primary" name="save_all_settings">
+            Save Main Settings
+        </button>
+    </form>
+
+    <!-- =============== AUTO COUNTER SETTINGS FORM =============== -->
+    <!-- This is hidden by default, shown only if the user toggles. -->
+    <form method="POST" id="autoCounterSettingsForm" style="display: none;" onsubmit="formIsDirty = false">
+        
+        <div class="form-check mb-3">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                id="AutoCounterEnabled"
+                name="AutoCounterEnabled"
+                {% if auto_config.AutoCounterEnabled %}checked{% endif %}
+            >
+            <label class="form-check-label" for="AutoCounterEnabled">
+                Enable Auto Countering
+            </label>
+        </div>
+
+        <div class="form-section">
+            <h3>Auto Counter Settings: Item Counts</h3>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="min_offer_item_count" class="form-label">Min Offer Item Count</label>
+                    <input
+                        type="number"
+                        id="min_offer_item_count"
+                        name="min_offer_item_count"
+                        value="{{ auto_config.min_offer_item_count }}"
+                        min="1"
+                        max="4"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Range: 1 to 4</small>
+                </div>
+
+                <!-- max_offer_item_count (int, range 1-4) -->
+                <div class="col-md-6 mb-3">
+                    <label for="max_offer_item_count" class="form-label">Max Offer Item Count</label>
+                    <input
+                        type="number"
+                        id="max_offer_item_count"
+                        name="max_offer_item_count"
+                        value="{{ auto_config.max_offer_item_count }}"
+                        min="1"
+                        max="4"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Range: 1 to 4</small>
+                </div>
+
+                <!-- min_request_item_count (int, range 1-4) -->
+                <div class="col-md-6 mb-3">
+                    <label for="min_request_item_count" class="form-label">Min Request Item Count</label>
+                    <input
+                        type="number"
+                        id="min_request_item_count"
+                        name="min_request_item_count"
+                        value="{{ auto_config.min_request_item_count }}"
+                        min="1"
+                        max="4"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Range: 1 to 4</small>
+                </div>
+
+                <!-- max_request_item_count (int, range 1-3) -->
+                <div class="col-md-6 mb-3">
+                    <label for="max_request_item_count" class="form-label">Max Request Item Count</label>
+                    <input
+                        type="number"
+                        id="max_request_item_count"
+                        name="max_request_item_count"
+                        value="{{ auto_config.max_request_item_count }}"
+                        min="1"
+                        max="4"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Range: 1 to 4</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2) COUNTER % RANGE INPUTS -->
+        <div class="form-section">
+            <h3>Counter % Range Inputs</h3>
+            <div class="row">
+                <!-- upper_bound_Upgrade (float) -->
+                <div class="col-md-6 mb-3">
+                    <label for="upper_bound_Upgrade" class="form-label">Upper Bound (Upgrade) %</label>
+                    <input
+                        type="number"
+                        id="upper_bound_Upgrade"
+                        name="upper_bound_Upgrade"
+                        value="{{ auto_config.upper_bound_Upgrade }}"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Max % gain on Upgrades</small>
+                </div>
+
+                <!-- lower_bound_Upgrade (float) -->
+                <div class="col-md-6 mb-3">
+                    <label for="lower_bound_Upgrade" class="form-label">Lower Bound (Upgrade) %</label>
+                    <input
+                        type="number"
+                        id="lower_bound_Upgrade"
+                        name="lower_bound_Upgrade"
+                        value="{{ auto_config.lower_bound_Upgrade }}"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Min % gain on Upgrades</small>
+                </div>
+
+                <!-- upper_bound_Downgrade (float) -->
+                <div class="col-md-6 mb-3">
+                    <label for="upper_bound_Downgrade" class="form-label">Upper Bound (Downgrade) %</label>
+                    <input
+                        type="number"
+                        id="upper_bound_Downgrade"
+                        name="upper_bound_Downgrade"
+                        value="{{ auto_config.upper_bound_Downgrade }}"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Max % gain on Downgrades</small>
+                </div>
+
+                <!-- lower_bound_Downgrade (float) -->
+                <div class="col-md-6 mb-3">
+                    <label for="lower_bound_Downgrade" class="form-label">Lower Bound (Downgrade) %</label>
+                    <input
+                        type="number"
+                        id="lower_bound_Downgrade"
+                        name="lower_bound_Downgrade"
+                        value="{{ auto_config.lower_bound_Downgrade }}"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Min % gain on Downgrades</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3) COUNTER MIN & MAX RAP -->
+        <div class="form-section">
+            <h3>Counter Min &amp; Max RAP</h3>
+            <div class="row">
+                <!-- min_rap (int) -->
+                <div class="col-md-6 mb-3">
+                    <label for="min_rap" class="form-label">Min RAP</label>
+                    <input
+                        type="number"
+                        id="min_rap"
+                        name="min_rap"
+                        value="{{ auto_config.min_rap }}"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Minimum RAP for items in auto-counter</small>
+                </div>
+
+                <!-- max_rap (int) -->
+                <div class="col-md-6 mb-3">
+                    <label for="max_rap" class="form-label">Max RAP</label>
+                    <input
+                        type="number"
+                        id="max_rap"
+                        name="max_rap"
+                        value="{{ auto_config.max_rap }}"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">Maximum RAP for items in auto-counter</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4) COUNTER DEMAND FILTERS -->
+        <div class="form-section">
+            <h3>Counter Demand Filters</h3>
+            <div class="row">
+                <!-- Counter_Demand_Gain_Filter (float, -5 to 5) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Counter_Demand_Gain_Filter" class="form-label">
+                        Counter Demand Gain Filter
+                    </label>
+                    <input
+                        type="number"
+                        id="Counter_Demand_Gain_Filter"
+                        name="Counter_Demand_Gain_Filter"
+                        value="{{ auto_config.Counter_Demand_Gain_Filter }}"
+                        min="-5"
+                        max="5"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Excludes Requesting items for any items that have < Demand than your set filter
+                    </small>
+                </div>
+
+                <!-- Counter_Min_Demand_Filter (float, -5 to 5) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Counter_Min_Demand_Filter" class="form-label">
+                        Counter Min Demand Filter
+                    </label>
+                    <input
+                        type="number"
+                        id="Counter_Min_Demand_Filter"
+                        name="Counter_Min_Demand_Filter"
+                        value="{{ auto_config.Counter_Min_Demand_Filter }}"
+                        min="-5"
+                        max="5"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        -5 to 5 | Remove combos that have less demand gain than set value.(Looks at combined total demand)
+                    </small>
+                </div>
+
+                <!-- Trade_Type (string y,n,b) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Trade_Type" class="form-label">Trade Type (y/n/b)</label>
+                    <input
+                        type="text"
+                        id="Trade_Type"
+                        name="Trade_Type"
+                        value="{{ auto_config.Trade_Type }}"
+                        maxlength="1"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Set to "y" (Upgrade), "n" (Downgrade), or "b" (Both).
+                    </small>
+                </div>
+
+                <!-- Counter_MinRapValueRatio (float) -->
+                <div class="col-md-6 mb-3">
+                    <label for="Counter_MinRapValueRatio" class="form-label">
+                        Counter Min RAP Value Ratio
+                    </label>
+                    <input
+                        type="number"
+                        id="Counter_MinRapValueRatio"
+                        name="Counter_MinRapValueRatio"
+                        value="{{ auto_config.Counter_MinRapValueRatio }}"
+                        step="any"
+                        class="form-control"
+                        required
+                    >
+                    <small class="form-text">
+                        Filters items by minimum (RAP/Value) - 1 ratio for auto-counters.
+                    </small>
+                </div>
+
+                <!-- UserIDs_not_to_Counter (string) -->
+                <div class="col-md-12 mb-3">
+                    <label for="UserIDs_not_to_Counter" class="form-label">
+                        User IDs Not to Auto-Counter
+                    </label>
+                    <input
+                        type="text"
+                        id="UserIDs_not_to_Counter"
+                        name="UserIDs_not_to_Counter"
+                        value="{{ auto_config.UserIDs_not_to_Counter }}"
+                        class="form-control"
+                    >
+                    <small class="form-text">
+                        Comma-separated user IDs. If inbound from these users, do NOT auto-counter.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Button that triggers saving the auto counter settings -->
+        <button type="submit" class="btn btn-primary" name="save_counter_settings">
+            Save Counter Settings
+        </button>
+    </form>
+
+
+    <!-- Static Note: Only shown when Trade Ads is visible -->
+    <div id="tradeAdInfo" class="mb-3" style="display: none; background-color: #2A2A2A; padding: 1rem; border-radius: 0.5rem;">
+        <p class="text-light">
+        To send specific trade ads, put your asset IDs in <strong>“Offering”</strong>, items or tags you want in 
+        <strong>“Requesting”</strong>, and the number of minutes until it sends a new ad in <strong>“Wait”</strong>.<br>
+        If you leave these blank, the bot will post trade ads of all your limiteds above 2500 RAP.
+
+        Viable Request tags are: any, demand, upgrade, downgrade, adds, projecteds
+        </p>
+    </div>
+    
+<!-- ============== TRADE AD FORM ============= -->
+<form method="POST" id="tradeAdForm" style="display: none; margin-bottom: 3rem;" onsubmit="formIsDirty = false">
+    <h3>Auto Post Trade Ad Settings</h3>
+  
+    <!-- Loop Over Existing Ads from Flask -->
+    <div id="adsContainer">
+      {% for ad in trade_ads %}
+      <div class="row mb-3 ad-row p-2" style="background-color: #2A2A2A; border-radius: 6px;">
+        
+        <!-- Remove Button (left column) -->
+        <div class="col-md-1 d-flex align-items-center justify-content-center">
+          <button type="button" class="btn btn-danger" onclick="removeAdRow(this)">
+            Remove
+          </button>
+        </div>
+  
+        <!-- Offer Column (inputs + images) -->
+        <div class="col-md-5">
+          <!-- Inputs -->
+          <label>Offering</label>
+          <input type="text" class="form-control mb-2" name="offering[]" value="{{ ad.offering }}">
+  
+          <!-- Images Section -->
+          <h5>Offer Images</h5>
+          <div class="d-flex flex-wrap" style="gap: 8px;">
+            {% set offering_tokens = ad.offering.split(',') %}
+            {% for token in offering_tokens %}
+            <img 
+              src="{{ token|resolve_image_url }}" 
+              alt="Offer" 
+              class="trade-img"
+              style="width:70px; height:70px; border-radius:4px; object-fit:cover;"
+            >
+            {% endfor %}
+          </div>
+        </div>
+  
+        <!-- Request Column (inputs + images) -->
+        <div class="col-md-5">
+          <!-- Request input -->
+          <label>Requesting</label>
+          <input type="text" class="form-control mb-2" name="requesting[]" value="{{ ad.requesting }}">
+  
+          <h5>Request Images</h5>
+          <div class="d-flex flex-wrap" style="gap: 8px;">
+            {% set requesting_tokens = ad.requesting.split(',') %}
+            {% for token in requesting_tokens %}
+            <img 
+              src="{{ token|resolve_image_url }}" 
+              alt="Request" 
+              class="trade-img"
+              style="width:70px; height:70px; border-radius:4px; object-fit:cover;"
+            >
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Wait Column -->
+        <div class="col-md-1 align-self-end">
+          <label>Wait (min)</label>
+          <input type="number" class="form-control" name="wait_minutes[]" value="{{ ad.wait }}">
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  
+    <!-- Button Container -->
+    <div class="d-flex justify-content-between mt-3">
+      <button type="button" class="btn btn-info" onclick="addAdRow()">
+        New Trade Ad
+      </button>
+      <button type="submit" class="btn btn-primary" name="save_tradeads">
+        Save Trade Ad Settings
+      </button>
+    </div>
+  </form>
+  
+
+    <!-- Multi-Account Settings Static Comment -->
+    <div id="multiAccountInfo" class="mb-3" style="display: none; background-color: #2A2A2A; padding: 1rem; border-radius: 0.5rem;">
+        <p class="text-light">
+            <strong>Note:</strong> These settings are only needed if you are going to run RoliBot with MULTIPLE accounts at the same time.
+            Meaning that if you are not using multi account mode you only need to input your manual 2FA key in __PUT_FA_KEY_HERE__.txt
+        </p>
+        <p>
+            <a href="https://gyazo.com/a4ca30bcce3191218e8daa4d6b715746" target="_blank" class="text-primary">
+                How to Get Roblox Security Cookie
+            </a>
+        </p>
+        <p>
+            <a href="https://gyazo.com/8336acc84a5534c3b4c7aad9aff68a52" target="_blank" class="text-primary">
+                How to Get Your Manual 2FA Code
+            </a>
+        </p> 
+    </div>
+    
+    <!-- MULTI ACCOUNT SETTINGS FORM -->
+    <form method="POST" id="multiAccountForm" style="display: none; margin-bottom: 3rem;" onsubmit="formIsDirty = false">
+        <h3>Multi Account Settings</h3>
+        
+        <div id="accountsContainer">
+            {% for acct in multi_config %}
+            <div class="row mb-3 account-row">
+              <div class="col-md-2">
+                <label>UserID (#{{ loop.index0 }})</label>
+                <input type="text" class="form-control" name="userid[]" value="{{ acct.userid }}">
+              </div>
+              <div class="col-md-2">
+                <label>ROBLOSECURITY</label>
+                <input type="text" class="form-control" name="roblosecurity[]" value="{{ acct.ROBLOSECURITY_Cookie }}">
+              </div>
+              <div class="col-md-2">
+                <label>ManualFaKey</label>
+                <input type="text" class="form-control" name="manualfa[]" value="{{ acct.ManualFaKey }}">
+              </div>
+              <div class="col-md-2">
+                <label>RoliVerification</label>
+                <input type="text" class="form-control" name="roliverification[]" value="{{ acct.RoliVerification_Cookie }}">
+              </div>
+              <div class="col-md-2 text-center">
+                <img src="{{ acct.avatar_url }}" alt="Avatar" width="50" height="50" style="border-radius: 4px;">
+                <br>
+                <small>{{ acct.username }}</small>
+              </div>
+              <div class="col-md-2 d-flex align-items-center">
+                <button type="button" class="btn btn-danger" onclick="removeAccountRow(this)">
+                  Remove
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+        <div class="d-flex gap-2 mb-3">
+            <!-- Add Account Button -->
+            <button type="button" class="btn btn-info" onclick="addAccountRow()">
+              Add Account
+            </button>
+            <button type="submit" class="btn btn-primary" name="save_multi_account_settings">
+                Save Multi-Account Settings
+            </button>
+  
+          
+    
+    <!-- ... existing HTML continues ... -->
+    
+    <script>
+        // Toggle the multi-account form
+        function toggleMultiAccountForm() {
+        const form = document.getElementById('multiAccountForm');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+        }
+        
+        // Dynamically remove a row
+        function removeAccountRow(button) {
+        const row = button.closest('.account-row');
+        row.remove();
+        }
+    
+        // Dynamically add a new empty row
+        function addAccountRow() {
+        const container = document.getElementById('accountsContainer');
+    
+        // Create a row (you can style it with Bootstrap classes)
+        const row = document.createElement('div');
+        row.className = 'row mb-3 account-row';
+    
+        row.innerHTML = `
+            <div class="col-md-2">
+            <label>UserID</label>
+            <input type="text" class="form-control" name="userid[]" value="">
+            </div>
+            <div class="col-md-2">
+            <label>ROBLOSECURITY</label>
+            <input type="text" class="form-control" name="roblosecurity[]" value="">
+            </div>
+            <div class="col-md-2">
+            <label>ManualFaKey</label>
+            <input type="text" class="form-control" name="manualfa[]" value="">
+            </div>
+            <div class="col-md-2">
+            <label>RoliVerification</label>
+            <input type="text" class="form-control" name="roliverification[]" value="">
+            </div>
+            <div class="col-md-2 text-center">
+            <img src="https://via.placeholder.com/50/000000/FFFFFF/?text=No+Avatar" 
+                alt="Avatar" width="50" height="50" style="border-radius: 4px;">
+            <br>
+            <small>Unknown</small>
+            </div>
+            <div class="col-md-2 d-flex align-items-center">
+            <button type="button" class="btn btn-danger" onclick="removeAccountRow(this)">
+                Remove
+            </button>
+            </div>
+        `;
+    
+        container.appendChild(row);
+        }
+    </script>
+  
+</div>
+
+
+<!-- Bootstrap JS (for alerts, etc.) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // GLOBAL FLAG
+    let formIsDirty = false;
+  
+    document.addEventListener('DOMContentLoaded', function () {
+      const normalForm = document.getElementById('normalSettingsForm');
+      const autoForm = document.getElementById('autoCounterSettingsForm');
+      const multiForm = document.getElementById('multiAccountForm');
+      const tradeAdForm = document.getElementById('tradeAdForm');
+      const tradeAdInfo = document.getElementById('tradeAdInfo');
+      const multiAccountInfo = document.getElementById('multiAccountInfo');
+  
+      // Mark form as not dirty on initial load
+      formIsDirty = false;
+  
+      // If any input changes, mark dirty
+      const allInputs = document.querySelectorAll('input, textarea, select');
+      allInputs.forEach(input => {
+        input.addEventListener('input', () => {
+          formIsDirty = true;
+        });
+      });
+  
+      // ... your existing code for toggling ...
+      window.toggleAutoCounter = function() {
+        // **CHECK DIRTY**
+        if (formIsDirty) {
+          const confirmSwitch = confirm("You have unsaved changes. Switch anyway?");
+          if (!confirmSwitch) return;
+          formIsDirty = false; 
+        }
+        // Proceed with toggling
+        if (autoForm.style.display === 'none') {
+          normalForm.style.display = 'none';
+          multiForm.style.display = 'none';
+          tradeAdForm.style.display = 'none';
+          tradeAdInfo.style.display = 'none';
+          multiAccountInfo.style.display = 'none';
+          autoForm.style.display = 'block';
+        } else {
+          autoForm.style.display = 'none';
+          normalForm.style.display = 'block';
+        }
+      };
+  
+      window.toggleMultiAccount = function() {
+        // **CHECK DIRTY**
+        if (formIsDirty) {
+          const confirmSwitch = confirm("You have unsaved changes. Switch anyway?");
+          if (!confirmSwitch) return;
+          formIsDirty = false;
+        }
+        // Proceed
+        if (multiForm.style.display === 'none') {
+          normalForm.style.display = 'none';
+          autoForm.style.display = 'none';
+          tradeAdForm.style.display = 'none';
+          tradeAdInfo.style.display = 'none';
+          multiAccountInfo.style.display = 'block';
+          multiForm.style.display = 'block';
+        } else {
+          multiForm.style.display = 'none';
+          multiAccountInfo.style.display = 'none';
+          normalForm.style.display = 'block';
+        }
+      };
+  
+      window.toggleTradeAds = function() {
+        // **CHECK DIRTY**
+        if (formIsDirty) {
+          const confirmSwitch = confirm("You have unsaved changes. Switch anyway?");
+          if (!confirmSwitch) return;
+          formIsDirty = false;
+        }
+        // Proceed
+        if (tradeAdForm.style.display === 'none') {
+          normalForm.style.display = 'none';
+          autoForm.style.display = 'none';
+          multiForm.style.display = 'none';
+          tradeAdForm.style.display = 'block';
+          tradeAdInfo.style.display = 'block';
+          multiAccountInfo.style.display = 'none';
+        } else {
+          tradeAdForm.style.display = 'none';
+          tradeAdInfo.style.display = 'none';
+          normalForm.style.display = 'block';
+        }
+      };
+  
+      // Remove Trade Ad Row
+      window.removeAdRow = function(button) {
+        const row = button.closest('.ad-row');
+        row.remove();
+      };
+  
+      // Add new Trade Ad Row
+      window.addAdRow = function() {
+        const adsContainer = document.getElementById('adsContainer');
+        const row = document.createElement('div');
+        row.className = 'row mb-2 ad-row';
+        row.innerHTML = `
+          <div class="col-md-3">
+            <label>Offering</label>
+            <input type="text" class="form-control" name="offering[]" value="">
+          </div>
+          <div class="col-md-3">
+            <label>Requesting</label>
+            <input type="text" class="form-control" name="requesting[]" value="">
+          </div>
+          <div class="col-md-2">
+            <label>Wait (minutes)</label>
+            <input type="number" class="form-control" name="wait_minutes[]" value="20">
+          </div>
+          <div class="col-md-4 d-flex align-items-center">
+            <button type="button" class="btn btn-danger ms-2" onclick="removeAdRow(this)">Remove</button>
+          </div>
+        `;
+        adsContainer.appendChild(row);
+      };
+  
+      // Remove Multi-Account Row
+      window.removeAccountRow = function(button) {
+        const row = button.closest('.account-row');
+        row.remove();
+      };
+  
+      // Add new Multi-Account Row
+      window.addAccountRow = function() {
+        const accountsContainer = document.getElementById('accountsContainer');
+        const row = document.createElement('div');
+        row.className = 'row mb-3 account-row';
+        row.innerHTML = `
+              <div class="col-md-2">
+                  <label>UserID</label>
+                  <input type="text" class="form-control" name="userid[]" value="">
+              </div>
+              <div class="col-md-2">
+                  <label>ROBLOSECURITY</label>
+                  <input type="text" class="form-control" name="roblosecurity[]" value="">
+              </div>
+              <div class="col-md-2">
+                  <label>ManualFaKey</label>
+                  <input type="text" class="form-control" name="manualfa[]" value="">
+              </div>
+              <div class="col-md-2">
+                  <label>RoliVerification</label>
+                  <input type="text" class="form-control" name="roliverification[]" value="">
+              </div>
+              <div class="col-md-2 text-center">
+                  <img src="https://via.placeholder.com/50/000000/FFFFFF/?text=No+Avatar" 
+                      alt="Avatar" width="50" height="50" style="border-radius: 4px;">
+                  <br>
+                  <small>Unknown</small>
+              </div>
+              <div class="col-md-2 d-flex align-items-center">
+                  <button type="button" class="btn btn-danger" onclick="removeAccountRow(this)">
+                      Remove
+                  </button>
+              </div>
+        `;
+        accountsContainer.appendChild(row);
+      };
+
+    // ===========================
+    // ** Initialize Bootstrap Tooltips **
+    // ===========================
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+ });
+  </script>
+
+  
+</body>
+</html>
